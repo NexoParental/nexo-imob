@@ -25,8 +25,14 @@ export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
 
   // Rotas públicas
-  if (path.startsWith('/login') || path.startsWith('/recuperar-senha')) {
-    if (user) return NextResponse.redirect(new URL('/dashboard', request.url))
+  const publicRoutes = ['/', '/cadastro', '/login', '/recuperar-senha']
+  if (publicRoutes.some(r => path === r || path.startsWith(r + '/'))) {
+    if (user && (path === '/' || path === '/cadastro')) {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
+    if (user && (path.startsWith('/login') || path.startsWith('/recuperar-senha'))) {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
     return supabaseResponse
   }
 
