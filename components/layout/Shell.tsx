@@ -53,46 +53,46 @@ export default function Shell({ profile, children }: { profile: Profile; childre
     : 'Haroldo Lopes'
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-paper">
       {/* Topbar */}
-      <header className="fixed top-0 left-0 right-0 h-14 bg-[#2B2B2B] text-white flex items-center justify-between px-5 z-50">
-        <div className="flex items-center gap-3">
-          <div className="w-7 h-7 rounded-full border border-accent flex items-center justify-center text-accent font-bold text-sm">N</div>
-          <span className="font-bold text-base tracking-tight">Nexo Imob</span>
-          <span className="text-[10px] text-[#aaa] uppercase tracking-widest ml-2 pl-2 border-l border-[#555] hidden sm:block">
+      <header className="fixed top-0 left-0 right-0 h-12 bg-[#0A1628] text-white flex items-center justify-between px-5 z-50">
+        <div className="flex items-center gap-4">
+          <span className="font-bold text-[13px] tracking-widest uppercase">
+            Nexo<span className="text-accent">Imob</span>
+          </span>
+          <span className="hidden sm:block text-[10px] text-white/30 uppercase tracking-widest pl-4 border-l border-white/10">
             {orgLabel}
           </span>
         </div>
-        <button className="sm:hidden p-1" onClick={() => setMobileOpen(!mobileOpen)}>
-          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+        <button className="sm:hidden p-1 text-white/60 hover:text-white" onClick={() => setMobileOpen(!mobileOpen)}>
+          {mobileOpen ? <X size={18} /> : <Menu size={18} />}
         </button>
       </header>
 
       {/* Sidebar desktop */}
-      <aside className="hidden sm:flex flex-col w-52 bg-surface-alt border-r border-line fixed top-14 bottom-0 left-0 p-3 overflow-y-auto z-40">
-        <SideNav nav={nav} pathname={pathname} />
-        <div className="mt-auto pt-3 border-t border-line">
-          <div className="px-2.5 py-2 text-xs text-ink-soft">
-            <span className="block font-semibold text-ink text-sm">{profile.name}</span>
-            <span className="capitalize">{profile.role}</span>
-          </div>
-          <button onClick={handleLogout} className="flex items-center gap-2 w-full px-2.5 py-2 text-xs text-ink-faint hover:text-urgent transition-colors">
-            <LogOut size={13} /> Sair
+      <aside className="hidden sm:flex flex-col w-48 bg-surface border-r border-line fixed top-12 bottom-0 left-0 overflow-y-auto z-40">
+        <div className="flex-1 py-4 px-2">
+          <SideNav nav={nav} pathname={pathname} />
+        </div>
+        <div className="border-t border-line px-3 py-3">
+          <div className="text-[11px] text-ink-soft mb-1 font-semibold truncate">{profile.name}</div>
+          <button onClick={handleLogout} className="flex items-center gap-1.5 text-[11px] text-ink-faint hover:text-ink transition-colors">
+            <LogOut size={11} /> Sair
           </button>
         </div>
       </aside>
 
       {/* Sidebar mobile */}
       {mobileOpen && (
-        <div className="sm:hidden fixed inset-0 z-40 bg-black/40" onClick={() => setMobileOpen(false)}>
-          <aside className="w-64 h-full bg-surface-alt border-r border-line p-3 pt-16" onClick={e => e.stopPropagation()}>
+        <div className="sm:hidden fixed inset-0 z-40 bg-black/50" onClick={() => setMobileOpen(false)}>
+          <aside className="w-56 h-full bg-surface border-r border-line pt-14 px-2" onClick={e => e.stopPropagation()}>
             <SideNav nav={nav} pathname={pathname} onNavigate={() => setMobileOpen(false)} />
           </aside>
         </div>
       )}
 
       {/* Main */}
-      <main className="sm:ml-52 mt-14 flex-1 p-6 sm:p-8 max-w-5xl">
+      <main className="sm:ml-48 mt-12 flex-1 p-5 sm:p-8 max-w-5xl">
         {children}
       </main>
     </div>
@@ -106,27 +106,28 @@ function SideNav({ nav, pathname, onNavigate }: {
 }) {
   let lastSection = ''
   return (
-    <nav className="flex flex-col gap-0.5">
+    <nav className="flex flex-col gap-px">
       {nav.map(item => {
         const showSection = item.section && item.section !== lastSection
         if (showSection) lastSection = item.section!
         const active = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href))
+        const Icon = item.icon
         return (
           <div key={item.href}>
             {showSection && (
-              <div className="text-[10px] uppercase tracking-widest text-ink-faint px-2.5 pt-4 pb-1.5">{item.section}</div>
+              <div className="text-[9px] font-bold uppercase tracking-[0.15em] text-ink-faint px-3 pt-5 pb-1">{item.section}</div>
             )}
             <Link
               href={item.href}
               onClick={onNavigate}
               className={cn(
-                'flex items-center gap-2.5 px-2.5 py-2 text-sm font-medium transition-colors',
+                'flex items-center gap-2.5 px-3 py-2 text-[13px] transition-colors rounded-sm',
                 active
-                  ? 'bg-surface text-ink border border-line font-semibold'
-                  : 'text-ink-soft hover:bg-surface'
+                  ? 'bg-accent/8 text-ink font-semibold'
+                  : 'text-ink-soft hover:text-ink hover:bg-surface-alt'
               )}
             >
-              <span className={cn('w-1.5 h-1.5 rounded-full', active ? 'bg-accent' : 'bg-ink-faint')} />
+              <Icon size={14} className={active ? 'text-accent' : 'text-ink-faint'} />
               {item.label}
             </Link>
           </div>
