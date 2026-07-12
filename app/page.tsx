@@ -144,6 +144,122 @@ export default function LandingPage() {
       {/* ── DIVISOR ── */}
       <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }} />
 
+      {/* ── PREÇOS ── */}
+      <section className="max-w-7xl mx-auto px-8 md:px-16 py-24">
+        <div className="mb-14">
+          <p className="text-[11px] font-semibold tracking-[0.25em] uppercase mb-4" style={{ color: '#D4471E' }}>
+            Planos
+          </p>
+          <h2
+            className="font-normal leading-tight"
+            style={{ fontFamily: 'var(--font-cormorant), Georgia, serif', fontSize: 'clamp(36px, 4vw, 54px)', letterSpacing: '-0.01em' }}
+          >
+            Simples, transparente,<br />sem fidelidade.
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-px" style={{ background: 'rgba(255,255,255,0.06)' }}>
+          {[
+            {
+              nome: 'Starter',
+              preco: 'R$ 297',
+              descricao: 'Para imobiliárias pequenas',
+              recursos: [
+                'Até 50 contratos ativos',
+                '2 usuários incluídos',
+                'Demandas jurídicas ilimitadas',
+                'Análise de contratos com IA',
+                'Gerador de minutas',
+                'Exportação CSV',
+              ],
+              destaque: false,
+            },
+            {
+              nome: 'Professional',
+              preco: 'R$ 697',
+              descricao: 'Para imobiliárias em crescimento',
+              recursos: [
+                'Contratos ilimitados',
+                '5 usuários incluídos',
+                'Tudo do Starter',
+                'Assinatura eletrônica Clicksign',
+                'Acompanhamento CNJ automático',
+                'Calendário de prazos',
+                'Dashboard com KPIs e gráficos',
+                'Exportação Excel e PDF',
+              ],
+              destaque: true,
+            },
+            {
+              nome: 'Enterprise',
+              preco: 'R$ 1.497',
+              descricao: 'Para operações de grande porte',
+              recursos: [
+                'Tudo do Professional',
+                'Usuários ilimitados',
+                'Multi-escritório (parcerias)',
+                'Suporte prioritário com SLA',
+                'Onboarding dedicado',
+                'API de integração',
+              ],
+              destaque: false,
+            },
+          ].map((p) => (
+            <div
+              key={p.nome}
+              className="flex flex-col p-8 gap-6"
+              style={{
+                background: p.destaque ? '#112240' : '#0A1628',
+                outline: p.destaque ? '1px solid rgba(212,71,30,0.35)' : undefined,
+              }}
+            >
+              {p.destaque && (
+                <div className="text-[10px] font-bold tracking-[0.2em] uppercase" style={{ color: '#D4471E' }}>
+                  Mais popular
+                </div>
+              )}
+              <div>
+                <div
+                  className="text-[28px] font-normal mb-1"
+                  style={{ fontFamily: 'var(--font-cormorant), Georgia, serif' }}
+                >
+                  {p.nome}
+                </div>
+                <div className="text-[13px]" style={{ color: 'rgba(255,255,255,0.4)' }}>{p.descricao}</div>
+              </div>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-[40px] font-bold tracking-tight">{p.preco}</span>
+                <span className="text-[13px]" style={{ color: 'rgba(255,255,255,0.35)' }}>/mês</span>
+              </div>
+              <ul className="flex-1 space-y-2.5">
+                {p.recursos.map((r) => (
+                  <li key={r} className="flex items-start gap-2.5 text-[13px]">
+                    <span className="mt-0.5 shrink-0" style={{ color: '#D4471E' }}>✓</span>
+                    <span style={{ color: 'rgba(255,255,255,0.6)' }}>{r}</span>
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href="/cadastro"
+                className="block text-center text-[13px] font-semibold py-3 transition-colors"
+                style={p.destaque
+                  ? { background: '#D4471E', color: 'white' }
+                  : { border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.6)' }}
+              >
+                Começar grátis
+              </Link>
+            </div>
+          ))}
+        </div>
+
+        <p className="text-center text-[12px] mt-6" style={{ color: 'rgba(255,255,255,0.2)' }}>
+          Pagamento via Stripe · Cancele quando quiser · 14 dias grátis em todos os planos
+        </p>
+      </section>
+
+      {/* ── DIVISOR ── */}
+      <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }} />
+
       {/* ── CTA FINAL ── */}
       <section className="max-w-7xl mx-auto px-8 md:px-16 py-28 flex flex-col md:flex-row items-start md:items-end justify-between gap-10">
         <h2
