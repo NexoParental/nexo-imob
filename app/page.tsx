@@ -2,125 +2,187 @@ import Link from 'next/link'
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-[#0A1628] text-white overflow-x-hidden">
-      {/* Nav */}
-      <nav className="flex items-center justify-between px-8 py-5 border-b border-white/10 max-w-6xl mx-auto">
-        <span className="font-sans font-bold tracking-widest text-sm uppercase text-white">
-          Nexo<span className="text-[#D4471E]">Imob</span>
+    <div
+      className="min-h-screen text-white overflow-x-hidden"
+      style={{ background: '#0A1628' }}
+    >
+      {/* ── NAV ── */}
+      <nav className="flex items-center justify-between px-8 md:px-16 py-6 max-w-7xl mx-auto">
+        <span
+          className="text-[13px] font-bold tracking-[0.2em] uppercase"
+          style={{ fontFamily: 'var(--font-cormorant), Georgia, serif', letterSpacing: '0.18em' }}
+        >
+          Nexo<span style={{ color: '#D4471E' }}>Imob</span>
         </span>
-        <div className="flex items-center gap-4">
-          <Link href="/login" className="text-sm text-white/60 hover:text-white transition-colors">
+        <div className="flex items-center gap-6">
+          <Link
+            href="/login"
+            className="text-[13px] text-white/50 hover:text-white transition-colors"
+          >
             Entrar
           </Link>
           <Link
             href="/cadastro"
-            className="text-sm bg-[#D4471E] hover:bg-[#B03615] text-white px-4 py-2 transition-colors"
+            className="text-[13px] font-medium px-5 py-2.5 transition-colors"
+            style={{ background: '#D4471E', color: 'white' }}
           >
             Começar grátis
           </Link>
         </div>
       </nav>
 
-      {/* Hero */}
-      <section className="max-w-6xl mx-auto px-8 pt-24 pb-20 text-center">
-        <div className="inline-block text-xs font-mono uppercase tracking-widest text-[#D4471E] border border-[#D4471E]/40 px-3 py-1 mb-8">
-          Imobiliária × Jurídico
+      {/* ── HERO ── */}
+      <section className="max-w-7xl mx-auto px-8 md:px-16 pt-20 pb-32">
+        <div className="max-w-3xl">
+          <p
+            className="text-[11px] font-medium tracking-[0.25em] uppercase mb-10"
+            style={{ color: '#D4471E', fontFamily: 'var(--font-sans)' }}
+          >
+            Plataforma jurídico-imobiliária
+          </p>
+          <h1
+            className="leading-[1.0] mb-8 font-normal"
+            style={{
+              fontFamily: 'var(--font-cormorant), Georgia, serif',
+              fontSize: 'clamp(52px, 8vw, 96px)',
+              letterSpacing: '-0.02em',
+            }}
+          >
+            Da imobiliária<br />
+            ao escritório.<br />
+            <span style={{ color: '#D4471E', fontStyle: 'italic' }}>Sem ruído.</span>
+          </h1>
+          <p
+            className="text-[17px] leading-relaxed mb-12 max-w-xl"
+            style={{ color: 'rgba(255,255,255,0.5)' }}
+          >
+            Gerencie demandas jurídicas, contratos e prazos numa plataforma única.
+            IA integrada, alertas automáticos, comunicação centralizada.
+          </p>
+          <div className="flex items-center gap-4 flex-wrap">
+            <Link
+              href="/cadastro"
+              className="inline-flex items-center gap-2 text-[13px] font-semibold px-7 py-3.5 transition-colors"
+              style={{ background: '#D4471E', color: 'white' }}
+            >
+              Criar conta — 14 dias grátis
+            </Link>
+            <Link
+              href="/login"
+              className="inline-flex items-center gap-2 text-[13px] transition-colors"
+              style={{ color: 'rgba(255,255,255,0.4)' }}
+            >
+              Já tenho conta →
+            </Link>
+          </div>
         </div>
-        <h1
-          className="text-5xl md:text-7xl font-normal leading-tight mb-6 text-white"
-          style={{ fontFamily: 'var(--font-cormorant), Georgia, serif' }}
+      </section>
+
+      {/* ── DIVISOR ── */}
+      <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }} />
+
+      {/* ── FEATURES ── */}
+      <section className="max-w-7xl mx-auto px-8 md:px-16 py-24">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-px" style={{ background: 'rgba(255,255,255,0.06)' }}>
+          {[
+            {
+              label: 'Demandas',
+              title: 'Fila jurídica organizada',
+              body: 'Protocolo automático, timeline de comunicação e acompanhamento CNJ via DataJud — tudo no mesmo lugar.',
+            },
+            {
+              label: 'Inteligência artificial',
+              title: 'Análise de contrato em segundos',
+              body: 'A IA lê os dados do contrato e aponta cláusulas de risco, prazos críticos e obrigações de cada parte.',
+            },
+            {
+              label: 'Alertas',
+              title: 'D-7, D-3, D-1 por e-mail',
+              body: 'O escritório recebe alertas automáticos antes de cada prazo vencer. Zero surpresas, zero WhatsApp.',
+            },
+            {
+              label: 'Documentos',
+              title: 'Gerador de minutas com IA',
+              body: 'Notificações extrajudiciais, cartas de cobrança e distratos gerados em um clique a partir do caso.',
+            },
+            {
+              label: 'Visibilidade',
+              title: 'Dashboard executivo',
+              body: 'KPIs da carteira, taxa de inadimplência, tempo médio de resolução e prazos vencendo — tudo em tempo real.',
+            },
+            {
+              label: 'Acesso',
+              title: 'Parceria imobiliária',
+              body: 'Convide o escritório parceiro. Cada lado vê exatamente o que precisa ver, sem acesso indevido.',
+            },
+          ].map((f) => (
+            <div
+              key={f.title}
+              className="p-8"
+              style={{ background: '#0A1628' }}
+            >
+              <div
+                className="text-[10px] font-semibold tracking-[0.2em] uppercase mb-4"
+                style={{ color: '#D4471E' }}
+              >
+                {f.label}
+              </div>
+              <h3
+                className="text-[22px] font-normal mb-3 leading-snug"
+                style={{ fontFamily: 'var(--font-cormorant), Georgia, serif' }}
+              >
+                {f.title}
+              </h3>
+              <p className="text-[13px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                {f.body}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── DIVISOR ── */}
+      <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }} />
+
+      {/* ── CTA FINAL ── */}
+      <section className="max-w-7xl mx-auto px-8 md:px-16 py-28 flex flex-col md:flex-row items-start md:items-end justify-between gap-10">
+        <h2
+          className="font-normal leading-tight"
+          style={{
+            fontFamily: 'var(--font-cormorant), Georgia, serif',
+            fontSize: 'clamp(36px, 5vw, 62px)',
+            letterSpacing: '-0.01em',
+          }}
         >
-          A ponte entre sua<br />
-          <span className="italic text-[#D4471E]">imobiliária</span> e o<br />
-          escritório jurídico
-        </h1>
-        <p className="text-lg text-white/60 max-w-xl mx-auto mb-10 leading-relaxed">
-          Gerencie demandas, contratos e prazos num único lugar.
-          IA integrada, alertas automáticos e colaboração em tempo real.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          Pronto para organizar<br />
+          o jurídico da sua<br />
+          <span style={{ color: '#D4471E', fontStyle: 'italic' }}>imobiliária?</span>
+        </h2>
+        <div className="shrink-0">
           <Link
             href="/cadastro"
-            className="inline-block bg-[#D4471E] hover:bg-[#B03615] text-white px-8 py-3.5 text-sm font-semibold transition-colors"
+            className="block text-[13px] font-semibold px-8 py-4 mb-3 transition-colors"
+            style={{ background: '#D4471E', color: 'white' }}
           >
-            Criar conta grátis — 14 dias
+            Criar conta grátis
           </Link>
-          <Link
-            href="/login"
-            className="inline-block border border-white/20 hover:border-white/40 text-white/80 hover:text-white px-8 py-3.5 text-sm transition-colors"
-          >
-            Já tenho conta →
-          </Link>
+          <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.25)' }}>
+            Sem cartão. Configurado em 5 minutos.
+          </p>
         </div>
       </section>
 
-      {/* Features */}
-      <section className="max-w-6xl mx-auto px-8 pb-24 grid grid-cols-1 md:grid-cols-3 gap-6">
-        {[
-          {
-            icon: '⚖️',
-            title: 'Demandas jurídicas',
-            desc: 'Protocolo automático, timeline de mensagens e acompanhamento CNJ integrado via DataJud.',
-          },
-          {
-            icon: '🤖',
-            title: 'Análise com IA',
-            desc: 'A IA lê seus contratos e aponta cláusulas de risco, prazos e obrigações das partes em segundos.',
-          },
-          {
-            icon: '📅',
-            title: 'Alertas D-7, D-3, D-1',
-            desc: 'Receba e-mails automáticos antes de cada prazo vencer. Zero surpresas para o seu escritório.',
-          },
-          {
-            icon: '📄',
-            title: 'Gerador de minutas',
-            desc: 'Crie notificações extrajudiciais, cartas de cobrança e distratos com um clique.',
-          },
-          {
-            icon: '📊',
-            title: 'Dashboard executivo',
-            desc: 'KPIs da carteira, taxa de inadimplência, tempo médio de resolução e gráficos em tempo real.',
-          },
-          {
-            icon: '🔗',
-            title: 'Parceria imobiliária',
-            desc: 'Convide seu escritório jurídico parceiro. Cada lado vê apenas o que precisa ver.',
-          },
-        ].map((f) => (
-          <div key={f.title} className="border border-white/10 p-6 hover:border-[#D4471E]/40 transition-colors">
-            <div className="text-2xl mb-3">{f.icon}</div>
-            <h3
-              className="text-xl font-medium mb-2"
-              style={{ fontFamily: 'var(--font-cormorant), Georgia, serif' }}
-            >
-              {f.title}
-            </h3>
-            <p className="text-sm text-white/50 leading-relaxed">{f.desc}</p>
-          </div>
-        ))}
-      </section>
-
-      {/* CTA */}
-      <section className="border-t border-white/10 py-20 text-center px-8">
-        <h2
-          className="text-4xl md:text-5xl font-normal mb-4 text-white"
-          style={{ fontFamily: 'var(--font-cormorant), Georgia, serif' }}
-        >
-          Pronto para começar?
-        </h2>
-        <p className="text-white/50 mb-8 text-sm">Sem cartão de crédito. Configure em menos de 5 minutos.</p>
-        <Link
-          href="/cadastro"
-          className="inline-block bg-[#D4471E] hover:bg-[#B03615] text-white px-10 py-4 text-sm font-semibold transition-colors"
-        >
-          Criar conta grátis
-        </Link>
-      </section>
-
-      <footer className="border-t border-white/10 px-8 py-6 text-center text-xs text-white/30 max-w-6xl mx-auto">
-        © {new Date().getFullYear()} Nexo Imob · Todos os direitos reservados
-      </footer>
+      {/* ── FOOTER ── */}
+      <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+        <div className="max-w-7xl mx-auto px-8 md:px-16 py-6 flex justify-between items-center">
+          <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.2)', letterSpacing: '0.08em' }}>
+            © {new Date().getFullYear()} Nexo Imob
+          </span>
+          <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.2)', letterSpacing: '0.06em' }}>
+            Todos os direitos reservados
+          </span>
+        </div>
+      </div>
     </div>
   )
 }
