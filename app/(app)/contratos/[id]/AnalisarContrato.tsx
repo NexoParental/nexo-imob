@@ -82,9 +82,6 @@ export default function AnalisarContrato({ contratoId }: { contratoId: string })
         </div>
       )}
 
-      {!analise && !loading && (
-        <p className="text-xs text-ink-faint">Clique para que a IA leia os dados do contrato e retorne partes, valores, prazos e cláusulas de risco.</p>
-      )}
     </Card>
   )
 }

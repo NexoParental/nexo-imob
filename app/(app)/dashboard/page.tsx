@@ -4,7 +4,6 @@ import Link from 'next/link'
 import CartaoDemanda from '@/components/demandas/CartaoDemanda'
 import DashboardClient from './DashboardClient'
 import DashboardStats from './DashboardStats'
-import { ExplainBox } from '@/components/ui'
 import type { Demanda } from '@/lib/types'
 
 export default async function DashboardPage({
@@ -65,11 +64,6 @@ export default async function DashboardPage({
           <h1 className="text-2xl font-bold tracking-tight">
             {isAdvogado ? 'Fila de demandas' : isCorretor ? 'Meus imóveis' : 'Demandas com o jurídico'}
           </h1>
-          <p className="text-sm text-ink-soft mt-1">
-            {isAdvogado
-              ? 'Tudo o que a Haroldo Lopes encaminhou, ordenado por prazo.'
-              : 'Tudo encaminhado ao Nicola Advogados, em um único lugar.'}
-          </p>
         </div>
         {!isAdvogado && !isCorretor && (
           <Link href="/demandas/nova" className="bg-accent text-white text-sm font-semibold px-4 py-2.5 hover:bg-accent-deep transition-colors">
@@ -77,13 +71,6 @@ export default async function DashboardPage({
           </Link>
         )}
       </div>
-
-      <ExplainBox>
-        <strong>Para que serve esta tela:</strong>{' '}
-        {isAdvogado
-          ? 'Substitui a checagem manual de e-mail e WhatsApp. Clique em um caso para ver histórico completo, documentos e responder — tudo registrado.'
-          : 'Substitui o grupo de WhatsApp e a caixa de e-mail com o escritório. Use os filtros para ver por tipo ou situação. Antes de abrir uma demanda, o contrato precisa existir em Cadastros.'}
-      </ExplainBox>
 
       <DashboardClient
         demandas={all}

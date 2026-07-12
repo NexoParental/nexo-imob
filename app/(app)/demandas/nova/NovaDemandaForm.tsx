@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Button, Input, Textarea, Select, UploadZone, FieldNote, ExplainBox, SectionTitle, Card } from '@/components/ui'
+import { Button, Input, Textarea, Select, UploadZone, SectionTitle, Card } from '@/components/ui'
 import { garantiaLabel } from '@/lib/utils'
 import type { TipoDemanda, UrgenciaDemanda, TipoGarantia } from '@/lib/types'
 
@@ -104,11 +104,6 @@ export default function NovaDemandaForm({ contratos, userId, organizationId }: P
         <Button variant="ghost" onClick={() => router.back()}>Cancelar</Button>
       </div>
 
-      <ExplainBox>
-        <strong>Por que o formulário muda:</strong> cada tipo de demanda precisa de informações diferentes.
-        Assim o Dr. José Eduardo pode começar a trabalhar sem precisar pedir nada de volta.
-      </ExplainBox>
-
       <form onSubmit={handleSubmit} className="max-w-2xl">
         <Card className="flex flex-col gap-4">
 
@@ -123,7 +118,6 @@ export default function NovaDemandaForm({ contratos, userId, organizationId }: P
                 label: `Nº ${c.numero} — ${c.imovel?.logradouro}, ${c.imovel?.numero} (${c.proprietario?.nome} → ${c.inquilino?.nome})`
               }))}
             />
-            <FieldNote>Puxa automaticamente o imóvel e as partes — é por isso que o contrato precisa existir antes.</FieldNote>
             {contrato && (
               <div className="mt-2 bg-surface-alt border border-line p-3 text-xs">
                 <div className="font-bold text-[10px] uppercase tracking-wider text-accent mb-2">Dados do contrato</div>
@@ -145,7 +139,6 @@ export default function NovaDemandaForm({ contratos, userId, organizationId }: P
                 onChange={e => setTipo(e.target.value as TipoDemanda)}
                 options={TIPOS_DEMANDA}
               />
-              <FieldNote>Define quais campos aparecem abaixo.</FieldNote>
             </div>
             <div>
               <Select
@@ -154,7 +147,6 @@ export default function NovaDemandaForm({ contratos, userId, organizationId }: P
                 onChange={e => setUrgencia(e.target.value as UrgenciaDemanda)}
                 options={[{value:'alta',label:'Alta'},{value:'media',label:'Média'},{value:'baixa',label:'Baixa'}]}
               />
-              <FieldNote>Ordena a fila do escritório.</FieldNote>
             </div>
           </div>
 
@@ -168,11 +160,9 @@ export default function NovaDemandaForm({ contratos, userId, organizationId }: P
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Input label="Valor total em aberto (R$)" value={extras.valor ?? ''} onChange={e => setExtra('valor', e.target.value)} placeholder="Ex.: 8.400,00" />
-                  <FieldNote>Base para o cálculo de qualquer cobrança — sem isso o advogado não sabe o valor da causa.</FieldNote>
                 </div>
                 <div>
                   <Input label="Meses em atraso" value={extras.meses ?? ''} onChange={e => setExtra('meses', e.target.value)} placeholder="Ex.: 3" />
-                  <FieldNote>Indica se cabe negociação amigável ou já justifica ação.</FieldNote>
                 </div>
               </div>
               <Textarea label="Tentativas de contato" value={extras.descricao ?? ''} onChange={e => setExtra('descricao', e.target.value)} placeholder="O que já foi tentado com o inquilino e/ou fiador" />
@@ -183,7 +173,6 @@ export default function NovaDemandaForm({ contratos, userId, organizationId }: P
             <>
               <Select label="Motivo" value={extras.motivo ?? ''} onChange={e => setExtra('motivo', e.target.value)}
                 options={[{value:'',label:'Selecione...'},{value:'atraso',label:'Atraso no pagamento'},{value:'descumprimento',label:'Descumprimento contratual'},{value:'rescisao',label:'Aviso prévio de rescisão'}]} />
-              <FieldNote>Muda o texto legal da notificação — cada motivo tem base jurídica e prazo diferentes.</FieldNote>
               <Input label="Prazo desejado para resposta" type="date" value={extras.prazo_resposta ?? ''} onChange={e => setExtra('prazo_resposta', e.target.value)} />
             </>
           )}
@@ -192,9 +181,7 @@ export default function NovaDemandaForm({ contratos, userId, organizationId }: P
             <>
               <Select label="Notificações anteriores já enviadas?" value={extras.notificacoes ?? ''} onChange={e => setExtra('notificacoes', e.target.value)}
                 options={[{value:'sim',label:'Sim, anexadas abaixo'},{value:'nao',label:'Não'}]} />
-              <FieldNote>Uma ação de despejo é mais sólida quando já existe notificação prévia.</FieldNote>
               <Textarea label="Histórico de inadimplência" value={extras.descricao ?? ''} onChange={e => setExtra('descricao', e.target.value)} placeholder="Resumo dos meses em aberto e tentativas de acordo" rows={4} />
-              <FieldNote>Vira a base fática da petição inicial — quanto mais completo, menos idas e vindas.</FieldNote>
             </>
           )}
 
@@ -203,7 +190,6 @@ export default function NovaDemandaForm({ contratos, userId, organizationId }: P
               <Select label="O que precisa ser feito" value={extras.acao ?? ''} onChange={e => setExtra('acao', e.target.value)}
                 options={[{value:'minuta',label:'Elaborar nova minuta'},{value:'revisao',label:'Revisar contrato existente'},{value:'parecer',label:'Parecer sobre cláusula específica'}]} />
               <Textarea label="Condições já negociadas" value={extras.descricao ?? ''} onChange={e => setExtra('descricao', e.target.value)} placeholder="Valores, prazos, garantias já negociadas entre as partes" />
-              <FieldNote>O advogado formaliza o que foi negociado — não decide valores comerciais.</FieldNote>
             </>
           )}
 
@@ -219,13 +205,11 @@ export default function NovaDemandaForm({ contratos, userId, organizationId }: P
             <>
               <Input label="Motivo do distrato" value={extras.motivo ?? ''} onChange={e => setExtra('motivo', e.target.value)} placeholder="Ex.: pedido do inquilino, venda do imóvel" />
               <Textarea label="Situação de caução e pagamentos" value={extras.descricao ?? ''} onChange={e => setExtra('descricao', e.target.value)} placeholder="Há valores retidos ou pendentes?" />
-              <FieldNote>É o ponto que mais gera disputa — o termo precisa deixar isso resolvido por escrito.</FieldNote>
             </>
           )}
 
           <SectionTitle>Documentos desta demanda</SectionTitle>
           <UploadZone label="Anexar documentos" onChange={setFiles} />
-          <FieldNote>Documentos do imóvel e das partes já estão no cadastro do contrato — aqui é só o que é específico deste caso.</FieldNote>
 
           {error && <p className="text-xs text-urgent">{error}</p>}
 

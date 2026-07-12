@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Button, Textarea, Select, UploadZone, FieldNote } from '@/components/ui'
+import { Button, Textarea, Select, UploadZone } from '@/components/ui'
 import type { StatusDemanda } from '@/lib/types'
 
 const STATUS_OPTIONS = [
@@ -104,9 +104,6 @@ export default function CasoReplyForm({ demandaId, currentStatus, isAdvogado, au
         />
 
         <UploadZone label="Anexar documento" onChange={setFiles} />
-        <FieldNote>
-          Substitui o anexo em WhatsApp — fica salvo dentro do caso, vinculado a esta mensagem.
-        </FieldNote>
 
         {isAdvogado && (
           <Select
@@ -115,12 +112,6 @@ export default function CasoReplyForm({ demandaId, currentStatus, isAdvogado, au
             onChange={e => setNovoStatus(e.target.value)}
             options={STATUS_OPTIONS}
           />
-        )}
-
-        {isAdvogado && (
-          <FieldNote>
-            Mudar o status aqui já atualiza o painel da Haroldo Lopes — ninguém precisa avisar por fora.
-          </FieldNote>
         )}
 
         {error && <p className="text-xs text-urgent">{error}</p>}

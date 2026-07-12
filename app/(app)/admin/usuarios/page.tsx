@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { ExplainBox } from '@/components/ui'
 import { LABELS_ROLE } from '@/lib/utils'
 import ConvidarUsuarioForm from './ConvidarUsuarioForm'
 
@@ -24,13 +23,8 @@ export default async function UsuariosPage() {
         <div>
           <div className="text-[11px] font-semibold uppercase tracking-widest text-accent mb-1">Administração</div>
           <h1 className="text-2xl font-bold tracking-tight">Usuários</h1>
-          <p className="text-sm text-ink-soft mt-1">Gerencie quem tem acesso à plataforma e com qual papel.</p>
         </div>
       </div>
-      <ExplainBox>
-        <strong>Convidar um usuário:</strong> ele receberá um e-mail com link para criar a senha. Você define o papel (gestor, administrativo, corretor) — isso controla o que cada um consegue fazer e ver.
-      </ExplainBox>
-
       <div className="grid grid-cols-1 md:grid-cols-[1fr_320px] gap-5">
         <div className="bg-surface border border-line overflow-hidden">
           <div className="grid px-4 py-2 bg-surface-alt text-[10.5px] uppercase tracking-widest text-ink-faint font-semibold" style={{gridTemplateColumns:'1fr 120px 100px 80px'}}>

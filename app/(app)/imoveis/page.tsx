@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { StatusContratoBadge, ExplainBox } from '@/components/ui'
+import { StatusContratoBadge } from '@/components/ui'
 
 export default async function ImoveisPage() {
   const supabase = await createClient()
@@ -20,15 +20,11 @@ export default async function ImoveisPage() {
         <div>
           <div className="text-[11px] font-semibold uppercase tracking-widest text-accent mb-1">Cadastros</div>
           <h1 className="text-2xl font-bold tracking-tight">Imóveis</h1>
-          <p className="text-sm text-ink-soft mt-1">A ficha de cada imóvel administrado ou intermediado.</p>
         </div>
         <Link href="/imoveis/novo" className="bg-accent text-white text-sm font-semibold px-4 py-2.5 hover:bg-accent-deep transition-colors">
           + Novo imóvel
         </Link>
       </div>
-      <ExplainBox>
-        <strong>Para que serve:</strong> é a base de tudo — um contrato não existe sem um imóvel identificado. Aqui ficam os dados que não mudam com o tempo (endereço, matrícula, cartório).
-      </ExplainBox>
       <div className="bg-surface border border-line overflow-hidden">
         <div className="grid px-4 py-2 bg-surface-alt text-[10.5px] uppercase tracking-widest text-ink-faint font-semibold" style={{gridTemplateColumns:'1.6fr 120px 1fr 130px 100px'}}>
           <div>Endereço</div><div>Tipo</div><div>Proprietário</div><div>Matrícula</div><div>Situação</div>

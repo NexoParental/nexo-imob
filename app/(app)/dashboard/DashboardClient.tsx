@@ -80,8 +80,6 @@ export default function DashboardClient({ demandas, counts, isAdvogado, initialT
         ))}
       </div>
 
-      <p className="text-[11px] text-ink-faint mb-4">Clique em um número para filtrar — clique de novo para limpar.</p>
-
       {/* Filtros por tipo */}
       {!isAdvogado && (
         <div className="flex flex-wrap gap-2 mb-4">

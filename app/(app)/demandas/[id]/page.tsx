@@ -115,9 +115,6 @@ export default async function CasoPage({ params }: { params: Promise<{ id: strin
         <div>
           <div className="bg-surface border border-line p-5 mb-4">
             <h2 className="text-[11px] font-bold uppercase tracking-widest text-ink-faint mb-4">Histórico do caso</h2>
-            {mensagens.length === 0 && (
-              <p className="text-sm text-ink-faint">Nenhuma mensagem ainda. Inicie a comunicação abaixo.</p>
-            )}
             {mensagens.map(m => (
               <MensagemItem
                 key={m.id}
