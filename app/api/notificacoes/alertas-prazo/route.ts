@@ -10,6 +10,15 @@ const admin = createClient(
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
+function esc(s: unknown): string {
+  return String(s ?? '—')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 // Disparar alertas D-7, D-3 e D-1 para demandas com prazo próximo
 // Chamar via cron job ou manualmente: GET /api/notificacoes/alertas-prazo
 export async function GET(req: NextRequest) {
@@ -63,16 +72,17 @@ export async function GET(req: NextRequest) {
         contratual: 'Contratual', condominial: 'Condominial', distrato: 'Distrato',
       }
 
-      const assunto = `⚠️ Prazo em ${dias} dia${dias > 1 ? 's' : ''} — ${tipo_label[d.tipo] ?? d.tipo} · ${d.protocolo}`
+      const tipoLabel = esc(tipo_label[d.tipo] ?? d.tipo)
+      const assunto = `⚠️ Prazo em ${dias} dia${dias > 1 ? 's' : ''} — ${tipoLabel} · ${esc(d.protocolo)}`
       const corpo = `
         <h2 style="color:#EF4444">Prazo em ${dias} dia${dias > 1 ? 's' : ''}!</h2>
-        <p><strong>Protocolo:</strong> ${d.protocolo}</p>
-        <p><strong>Tipo:</strong> ${tipo_label[d.tipo] ?? d.tipo}</p>
-        <p><strong>Imóvel:</strong> ${imovel?.logradouro ?? '—'}, ${imovel?.numero ?? ''} — ${imovel?.bairro ?? ''}, ${imovel?.cidade ?? ''}</p>
-        <p><strong>Inquilino:</strong> ${contrato?.inquilino?.nome ?? '—'}</p>
-        <p><strong>Prazo:</strong> ${new Date(d.prazo).toLocaleDateString('pt-BR')}</p>
+        <p><strong>Protocolo:</strong> ${esc(d.protocolo)}</p>
+        <p><strong>Tipo:</strong> ${tipoLabel}</p>
+        <p><strong>Imóvel:</strong> ${esc(imovel?.logradouro)}, ${esc(imovel?.numero)} — ${esc(imovel?.bairro)}, ${esc(imovel?.cidade)}</p>
+        <p><strong>Inquilino:</strong> ${esc(contrato?.inquilino?.nome)}</p>
+        <p><strong>Prazo:</strong> ${esc(new Date(d.prazo).toLocaleDateString('pt-BR'))}</p>
         <p style="margin-top:16px">
-          <a href="${process.env.NEXT_PUBLIC_APP_URL}/demandas/${d.id}" style="background:#6A6ACD;color:white;padding:8px 16px;text-decoration:none;">
+          <a href="${esc(process.env.NEXT_PUBLIC_APP_URL)}/demandas/${esc(d.id)}" style="background:#D4471E;color:white;padding:8px 16px;text-decoration:none;">
             Ver demanda →
           </a>
         </p>

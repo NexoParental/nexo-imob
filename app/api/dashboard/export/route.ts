@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient as createServerClient } from '@/lib/supabase/server'
-import * as XLSX from 'xlsx'
+import ExcelJS from 'exceljs'
 
 export async function GET(req: NextRequest) {
   const supabase = await createServerClient()
@@ -43,16 +43,19 @@ export async function GET(req: NextRequest) {
   }))
 
   if (format === 'excel') {
-    const ws = XLSX.utils.json_to_sheet(rows)
-    const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, 'Demandas')
+    const wb = new ExcelJS.Workbook()
+    const ws = wb.addWorksheet('Demandas')
 
-    // Ajustar largura das colunas
-    const colWidths = Object.keys(rows[0] ?? {}).map(k => ({ wch: Math.max(k.length, 15) }))
-    ws['!cols'] = colWidths
+    if (rows.length > 0) {
+      const cols = Object.keys(rows[0])
+      ws.columns = cols.map(k => ({ header: k, key: k, width: Math.max(k.length + 4, 18) }))
+      // Cabeçalho em negrito
+      ws.getRow(1).font = { bold: true }
+      rows.forEach(r => ws.addRow(r))
+    }
 
-    const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' })
-    return new NextResponse(buf, {
+    const buf = await wb.xlsx.writeBuffer()
+    return new NextResponse(buf as ArrayBuffer, {
       headers: {
         'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         'Content-Disposition': `attachment; filename="demandas_${new Date().toISOString().slice(0, 10)}.xlsx"`,

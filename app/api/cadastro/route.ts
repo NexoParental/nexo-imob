@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { rateLimit, rateLimitKey } from '@/lib/rate-limit'
 
 const admin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -8,7 +9,16 @@ const admin = createClient(
 )
 
 export async function POST(req: NextRequest) {
-  const { nome_imobiliaria, nome_usuario, email, senha } = await req.json()
+  // Rate limit: 2 cadastros por hora por IP
+  if (!rateLimit(rateLimitKey(req, 'cadastro'), 2, 60 * 60 * 1000)) {
+    return NextResponse.json({ error: 'Muitas tentativas. Aguarde e tente novamente.' }, { status: 429 })
+  }
+
+  const body = await req.json()
+  const { nome_imobiliaria, nome_usuario, email, senha, _hp } = body
+
+  // Honeypot: campo oculto preenchido = bot
+  if (_hp) return NextResponse.json({ ok: true }) // rejeição silenciosa
 
   if (!nome_imobiliaria || !nome_usuario || !email || !senha) {
     return NextResponse.json({ error: 'Dados incompletos' }, { status: 400 })

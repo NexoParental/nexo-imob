@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { rateLimit, rateLimitKey } from '@/lib/rate-limit'
 
 export async function POST(req: NextRequest) {
+  // Rate limit: 10 análises por hora por IP
+  if (!rateLimit(rateLimitKey(req, 'ia-analisar'), 10, 60 * 60 * 1000)) {
+    return NextResponse.json({ error: 'Limite de análises atingido. Aguarde.' }, { status: 429 })
+  }
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
