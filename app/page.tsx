@@ -294,9 +294,10 @@ export default function LandingPage() {
           <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.2)', letterSpacing: '0.08em' }}>
             © {new Date().getFullYear()} Nexo Imob
           </span>
-          <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.2)', letterSpacing: '0.06em' }}>
-            Todos os direitos reservados
-          </span>
+          <div className="flex gap-4" style={{ color: 'rgba(255,255,255,0.2)' }}>
+            <Link href="/privacidade" className="text-[11px] hover:text-white/50 transition-colors" style={{ letterSpacing: '0.06em' }}>Privacidade</Link>
+            <Link href="/termos" className="text-[11px] hover:text-white/50 transition-colors" style={{ letterSpacing: '0.06em' }}>Termos de Uso</Link>
+          </div>
         </div>
       </div>
     </div>

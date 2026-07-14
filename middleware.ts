@@ -25,7 +25,7 @@ export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
 
   // Rotas públicas
-  const publicRoutes = ['/', '/cadastro', '/login', '/recuperar-senha']
+  const publicRoutes = ['/', '/cadastro', '/login', '/recuperar-senha', '/privacidade', '/termos']
   if (publicRoutes.some(r => path === r || path.startsWith(r + '/'))) {
     if (user && (path === '/' || path === '/cadastro')) {
       return NextResponse.redirect(new URL('/dashboard', request.url))

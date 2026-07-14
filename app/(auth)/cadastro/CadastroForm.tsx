@@ -65,6 +65,12 @@ export default function CadastroForm() {
       <Button type="submit" variant="accent" className="w-full" loading={loading}>
         Criar conta grátis
       </Button>
+      <p className="text-center text-[11px] text-ink-faint">
+        Ao criar uma conta você concorda com os{' '}
+        <Link href="/termos" className="underline hover:text-ink-soft" target="_blank">Termos de Uso</Link>
+        {' '}e a{' '}
+        <Link href="/privacidade" className="underline hover:text-ink-soft" target="_blank">Política de Privacidade</Link>.
+      </p>
       <p className="text-center text-xs text-ink-soft">
         Já tem conta? <Link href="/login" className="text-accent underline">Entrar</Link>
       </p>
