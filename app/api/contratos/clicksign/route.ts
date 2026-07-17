@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient as createServerClient } from '@/lib/supabase/server'
 import { createClient } from '@supabase/supabase-js'
+import { gerarPDFContrato } from '@/lib/pdf/contrato'
 
 const admin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -11,15 +12,14 @@ const admin = createClient(
 const CLICKSIGN_BASE = 'https://app.clicksign.com/api/v1'
 const CLICKSIGN_TOKEN = process.env.CLICKSIGN_ACCESS_TOKEN
 
-// Cria um documento no Clicksign a partir de um base64 PDF
-async function criarDocumento(nomeArquivo: string, conteudoBase64: string) {
+async function criarDocumento(nomeArquivo: string, pdfBuffer: Buffer) {
   const res = await fetch(`${CLICKSIGN_BASE}/documents?access_token=${CLICKSIGN_TOKEN}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       document: {
         path: `/${nomeArquivo}`,
-        content_base64: `data:application/pdf;base64,${conteudoBase64}`,
+        content_base64: `data:application/pdf;base64,${pdfBuffer.toString('base64')}`,
         deadline_at: null,
         auto_close: true,
         locale: 'pt-BR',
@@ -31,23 +31,23 @@ async function criarDocumento(nomeArquivo: string, conteudoBase64: string) {
   return res.json()
 }
 
-async function adicionarSignatario(docKey: string, nome: string, email: string, acao = 'sign') {
-  // Criar signatário
+async function adicionarSignatario(docKey: string, nome: string, email: string) {
   const resSig = await fetch(`${CLICKSIGN_BASE}/signers?access_token=${CLICKSIGN_TOKEN}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      signer: { name: nome, email, phone_number: null, auth: { type: 'email' }, sign_as: acao, selfie_enabled: false },
+      signer: { name: nome, email, phone_number: null, auth: { type: 'email' }, sign_as: 'sign', selfie_enabled: false },
     }),
   })
   if (!resSig.ok) throw new Error(`Clicksign criar signatário: ${await resSig.text()}`)
   const { signer } = await resSig.json()
 
-  // Associar ao documento
   const resAdd = await fetch(`${CLICKSIGN_BASE}/lists?access_token=${CLICKSIGN_TOKEN}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ list: { document_key: docKey, signer_key: signer.key, sign_as: acao, message: 'Por favor, assine o contrato.' } }),
+    body: JSON.stringify({
+      list: { document_key: docKey, signer_key: signer.key, sign_as: 'sign', message: 'Por favor, assine o contrato.' },
+    }),
   })
   if (!resAdd.ok) throw new Error(`Clicksign associar: ${await resAdd.text()}`)
   return signer
@@ -57,13 +57,15 @@ async function notificarSignatario(docKey: string, signerKey: string) {
   await fetch(`${CLICKSIGN_BASE}/notifications?access_token=${CLICKSIGN_TOKEN}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message: { document_key: docKey, signer_key: signerKey, message: 'Contrato aguardando sua assinatura eletrônica.' } }),
+    body: JSON.stringify({
+      message: { document_key: docKey, signer_key: signerKey, message: 'Contrato aguardando sua assinatura eletrônica.' },
+    }),
   })
 }
 
 export async function POST(req: NextRequest) {
   if (!CLICKSIGN_TOKEN) {
-    return NextResponse.json({ error: 'CLICKSIGN_ACCESS_TOKEN não configurado' }, { status: 503 })
+    return NextResponse.json({ error: 'CLICKSIGN_ACCESS_TOKEN não configurado no servidor.' }, { status: 503 })
   }
 
   const supabase = await createServerClient()
@@ -82,32 +84,46 @@ export async function POST(req: NextRequest) {
   if (!contrato) return NextResponse.json({ error: 'Contrato não encontrado' }, { status: 404 })
 
   const prop = contrato.proprietario as any
-  const inq = contrato.inquilino as any
-  const fiad = contrato.fiador as any
+  const inq  = contrato.inquilino  as any
+  const fiad = contrato.fiador     as any
 
-  // Validar e-mails necessários
-  const signatarios: { nome: string; email: string; papel: string }[] = []
-  if (prop?.email) signatarios.push({ nome: prop.nome, email: prop.email, papel: 'Proprietário' })
-  if (inq?.email) signatarios.push({ nome: inq.nome, email: inq.email, papel: 'Inquilino/Comprador' })
-  if (fiad?.email) signatarios.push({ nome: fiad.nome, email: fiad.email, papel: 'Fiador' })
+  const signatarios: { nome: string; email: string }[] = []
+  if (prop?.email) signatarios.push({ nome: prop.nome, email: prop.email })
+  if (inq?.email)  signatarios.push({ nome: inq.nome,  email: inq.email })
+  if (fiad?.email) signatarios.push({ nome: fiad.nome, email: fiad.email })
 
   if (signatarios.length === 0) {
-    return NextResponse.json({ error: 'Nenhuma parte possui e-mail cadastrado. Atualize as fichas das pessoas antes de enviar.' }, { status: 400 })
+    return NextResponse.json({
+      error: 'Nenhuma parte possui e-mail cadastrado. Atualize as fichas das pessoas antes de enviar.',
+    }, { status: 400 })
   }
 
   try {
     const im = contrato.imovel as any
-    const nomeArquivo = `Contrato_${contrato.numero}_${im?.bairro ?? 'Imovel'}.pdf`.replace(/\s/g, '_')
+    const nomeArquivo = `Contrato_${contrato.numero}_${(im?.bairro ?? 'Imovel').replace(/\s/g, '_')}.pdf`
 
-    // PDF mínimo em base64 — placeholder até ter geração real
-    // Em produção, buscar o PDF do Supabase Storage ou gerar via PDFKit
-    const pdfPlaceholder = btoa(`%PDF-1.4\n1 0 obj<</Type /Catalog /Pages 2 0 R>>endobj 2 0 obj<</Type /Pages /Kids [3 0 R] /Count 1>>endobj 3 0 obj<</Type /Page /Parent 2 0 R /MediaBox [0 0 612 792]>>endobj\nxref\n0 4\n0000000000 65535 f\n0000000009 00000 n\n0000000058 00000 n\n0000000115 00000 n\ntrailer<</Size 4 /Root 1 0 R>>\nstartxref\n190\n%%EOF`)
+    // Gerar PDF real do contrato
+    const pdfBuffer = await gerarPDFContrato({
+      numero: contrato.numero,
+      tipo: contrato.tipo,
+      status: contrato.status,
+      data_inicio: contrato.data_inicio,
+      prazo_meses: contrato.prazo_meses,
+      valor: Number(contrato.valor),
+      indice_reajuste: contrato.indice_reajuste,
+      tipo_garantia: contrato.tipo_garantia,
+      garantia_descricao: contrato.garantia_descricao,
+      imovel: im,
+      proprietario: prop,
+      inquilino: inq,
+      fiador: fiad,
+    })
 
-    // Criar documento no Clicksign
-    const { document } = await criarDocumento(nomeArquivo, pdfPlaceholder)
+    // Criar documento no Clicksign com PDF real
+    const { document } = await criarDocumento(nomeArquivo, pdfBuffer)
     const docKey = document.key
 
-    // Adicionar signatários e notificar
+    // Adicionar signatários
     const signerKeys: string[] = []
     for (const s of signatarios) {
       const signer = await adicionarSignatario(docKey, s.nome, s.email)
@@ -118,17 +134,15 @@ export async function POST(req: NextRequest) {
     await fetch(`${CLICKSIGN_BASE}/documents/${docKey}/finish?access_token=${CLICKSIGN_TOKEN}`, { method: 'PATCH' })
 
     // Notificar todos
-    for (const sk of signerKeys) {
-      await notificarSignatario(docKey, sk)
-    }
+    for (const sk of signerKeys) await notificarSignatario(docKey, sk)
 
-    // Salvar referência no banco
+    // Registrar no banco
     await admin.from('documentos').insert({
       contrato_id,
       nome: `Assinatura eletrônica — ${nomeArquivo}`,
       storage_path: `clicksign://${docKey}`,
       mime_type: 'application/pdf',
-      tamanho_bytes: 0,
+      tamanho_bytes: pdfBuffer.length,
       uploaded_by: user.id,
     })
 
@@ -143,7 +157,6 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// Consultar status de assinatura
 export async function GET(req: NextRequest) {
   if (!CLICKSIGN_TOKEN) return NextResponse.json({ error: 'Não configurado' }, { status: 503 })
 
