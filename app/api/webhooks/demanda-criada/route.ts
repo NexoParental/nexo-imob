@@ -9,6 +9,13 @@ const supabase = createClient(
 )
 
 export async function POST(req: NextRequest) {
+  // Database Webhook do Supabase — validado por segredo compartilhado configurado
+  // no header customizado do webhook (Database Webhooks → HTTP Headers)
+  const secret = req.headers.get('x-webhook-secret')
+  if (!process.env.SUPABASE_WEBHOOK_SECRET || secret !== process.env.SUPABASE_WEBHOOK_SECRET) {
+    return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+  }
+
   const body = await req.json()
   const { record } = body // Supabase webhook payload
 

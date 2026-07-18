@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient as createServerClient } from '@/lib/supabase/server'
 import { createClient } from '@supabase/supabase-js'
 
 const admin = createClient(
@@ -27,7 +28,8 @@ async function consultarDataJud(numeroProcesso: string) {
     '1-00': 'stj',  '2-00': 'stf',
   }
   const tribunalKey = `${segmento}-${tribunal}`
-  const tribunalId = tribunalMap[tribunalKey] || `tj${tribunal.padStart(2, '0')}`
+  const prefixoSegmento: Record<string, string> = { '8': 'tj', '4': 'trf', '5': 'trt', '6': 'tre', '9': 'tst' }
+  const tribunalId = tribunalMap[tribunalKey] || `${prefixoSegmento[segmento] ?? 'tj'}${tribunal.padStart(2, '0')}`
 
   const url = `https://api-publica.datajud.cnj.jus.br/api_publica_${tribunalId}/_search`
   const body = {
@@ -71,11 +73,24 @@ async function consultarDataJud(numeroProcesso: string) {
 }
 
 export async function POST(req: NextRequest) {
+  const supabase = await createServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+
   const { numero_processo, demanda_id } = await req.json()
 
   if (!numero_processo || !demanda_id) {
     return NextResponse.json({ error: 'Dados incompletos' }, { status: 400 })
   }
+
+  // Confirma que a demanda pertence à organização do usuário autenticado (RLS via client de sessão)
+  const { data: demanda } = await supabase
+    .from('demandas')
+    .select('id')
+    .eq('id', demanda_id)
+    .single()
+
+  if (!demanda) return NextResponse.json({ error: 'Demanda não encontrada' }, { status: 404 })
 
   try {
     const dadosCNJ = await consultarDataJud(numero_processo)
@@ -99,11 +114,25 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function GET() {
+// Ressincroniza os processos CNJ apenas da organização do usuário autenticado
+export async function GET(req: NextRequest) {
+  const supabase = await createServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('organization_id')
+    .eq('id', user.id)
+    .single()
+
+  if (!profile) return NextResponse.json({ error: 'Perfil não encontrado' }, { status: 404 })
+
   try {
     const { data: processos } = await admin
       .from('processos_cnj')
-      .select('numero_processo, demanda_id')
+      .select('numero_processo, demanda_id, demanda:demandas!inner(organization_id)')
+      .eq('demanda.organization_id', profile.organization_id)
       .not('numero_processo', 'is', null)
 
     if (!processos || processos.length === 0) {

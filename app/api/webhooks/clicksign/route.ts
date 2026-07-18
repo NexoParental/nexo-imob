@@ -8,6 +8,14 @@ const admin = createClient(
 )
 
 export async function POST(req: NextRequest) {
+  // ClickSign não assina o payload do webhook — a mitigação é um token
+  // compartilhado configurado na URL do webhook no painel ClickSign
+  // (Configurações → Notificações → URL: .../api/webhooks/clicksign?token=SEU_SEGREDO)
+  const { searchParams } = new URL(req.url)
+  if (!process.env.CLICKSIGN_WEBHOOK_SECRET || searchParams.get('token') !== process.env.CLICKSIGN_WEBHOOK_SECRET) {
+    return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+  }
+
   const body = await req.json()
 
   const event = body.event

@@ -57,6 +57,14 @@ export async function GET(req: NextRequest) {
       .select('*', { count: 'exact', head: true })
       .eq('organization_id', profile.organization_id)
 
+    // Cobranças jurídicas ativas (proxy real de inadimplência — não toda demanda "aberta")
+    const { count: cobrancasAtivas } = await supabase
+      .from('demandas')
+      .select('*', { count: 'exact', head: true })
+      .eq('organization_id', profile.organization_id)
+      .eq('tipo', 'cobranca')
+      .neq('status', 'concluida')
+
     // Tempo médio de resolução (demandas concluídas)
     const { data: demandasConcluidas } = await supabase
       .from('demandas')
@@ -79,6 +87,7 @@ export async function GET(req: NextRequest) {
       tipoCounts,
       prazosProximos: demandasComPrazo || [],
       totalContratos,
+      cobrancasAtivas: cobrancasAtivas || 0,
       tempoMedioDias: tempoMedio,
       totalDemandas: demandasPorStatus?.length || 0,
     })

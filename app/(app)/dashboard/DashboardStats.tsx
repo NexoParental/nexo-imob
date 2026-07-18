@@ -8,6 +8,7 @@ interface Stats {
   tipoCounts: Record<string, number>
   prazosProximos: any[]
   totalContratos: number
+  cobrancasAtivas: number
   tempoMedioDias: number
   totalDemandas: number
 }
@@ -122,8 +123,7 @@ export default function DashboardStats() {
   const statusData = Object.entries(stats.statusCounts).map(([k, v]) => ({ label: STATUS_LABELS[k] ?? k, value: v }))
   const tipoData = Object.entries(stats.tipoCounts).map(([k, v]) => ({ label: TIPO_LABELS[k] ?? k, value: v }))
 
-  const inadimplentes = stats.statusCounts['aberta'] ?? 0
-  const taxaInadimplencia = stats.totalContratos > 0 ? ((inadimplentes / stats.totalContratos) * 100).toFixed(1) : '0'
+  const taxaInadimplencia = stats.totalContratos > 0 ? ((stats.cobrancasAtivas / stats.totalContratos) * 100).toFixed(1) : '0'
   const taxaConclusao = stats.totalDemandas > 0 ? Math.round(((stats.statusCounts.concluida ?? 0) / stats.totalDemandas) * 100) : 0
 
   return (
@@ -136,8 +136,8 @@ export default function DashboardStats() {
         <Button variant="ghost" size="sm" onClick={() => window.open('/api/dashboard/export?format=excel', '_blank')}>
           ↓ Exportar Excel
         </Button>
-        <Button variant="ghost" size="sm" onClick={() => window.print()}>
-          ↓ Imprimir PDF
+        <Button variant="ghost" size="sm" onClick={() => window.open('/api/dashboard/export?format=pdf', '_blank')}>
+          ↓ Exportar PDF
         </Button>
       </div>
 
@@ -167,7 +167,7 @@ export default function DashboardStats() {
           <div>
             <div className="text-[11px] text-ink-faint uppercase tracking-wider mb-1">Taxa de inadimplência da carteira</div>
             <div className="text-4xl font-bold text-urgent">{taxaInadimplencia}%</div>
-            <div className="text-xs text-ink-soft mt-1">{inadimplentes} demandas abertas sobre {stats.totalContratos} contratos</div>
+            <div className="text-xs text-ink-soft mt-1">{stats.cobrancasAtivas} cobranças jurídicas ativas sobre {stats.totalContratos} contratos</div>
           </div>
           <div className="w-24 h-24">
             <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
@@ -208,7 +208,7 @@ export default function DashboardStats() {
                   <span className="text-[11px] text-ink-faint block">{p.tipo}</span>
                 </div>
                 <span className="text-urgent font-bold text-sm">
-                  {new Date(p.prazo).toLocaleDateString('pt-BR')}
+                  {new Date(p.prazo + 'T12:00:00').toLocaleDateString('pt-BR')}
                 </span>
               </div>
             ))}

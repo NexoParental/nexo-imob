@@ -22,8 +22,8 @@ function esc(s: unknown): string {
 // Disparar alertas D-7, D-3 e D-1 para demandas com prazo próximo
 // Chamar via cron job ou manualmente: GET /api/notificacoes/alertas-prazo
 export async function GET(req: NextRequest) {
-  const secret = req.headers.get('x-cron-secret')
-  if (process.env.CRON_SECRET && secret !== process.env.CRON_SECRET) {
+  const secret = req.headers.get('x-cron-secret') ?? req.headers.get('authorization')?.replace(/^Bearer\s+/i, '')
+  if (!process.env.CRON_SECRET || secret !== process.env.CRON_SECRET) {
     return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
   }
 

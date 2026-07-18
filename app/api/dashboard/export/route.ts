@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient as createServerClient } from '@/lib/supabase/server'
 import ExcelJS from 'exceljs'
+import { gerarPDFRelatorio } from '@/lib/pdf/relatorio'
 
 export async function GET(req: NextRequest) {
   const supabase = await createServerClient()
@@ -32,7 +33,7 @@ export async function GET(req: NextRequest) {
     Tipo: d.tipo ?? '',
     Status: d.status ?? '',
     Urgência: d.urgencia ?? '',
-    Prazo: d.prazo ? new Date(d.prazo).toLocaleDateString('pt-BR') : '',
+    Prazo: d.prazo ? new Date(d.prazo + 'T12:00:00').toLocaleDateString('pt-BR') : '',
     Contrato: d.contrato?.numero ?? '',
     Inquilino: d.contrato?.inquilino?.nome ?? '',
     Imóvel: d.contrato?.imovel
@@ -59,6 +60,16 @@ export async function GET(req: NextRequest) {
       headers: {
         'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         'Content-Disposition': `attachment; filename="demandas_${new Date().toISOString().slice(0, 10)}.xlsx"`,
+      },
+    })
+  }
+
+  if (format === 'pdf') {
+    const buf = await gerarPDFRelatorio(rows as any)
+    return new NextResponse(buf as unknown as ArrayBuffer, {
+      headers: {
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename="demandas_${new Date().toISOString().slice(0, 10)}.pdf"`,
       },
     })
   }

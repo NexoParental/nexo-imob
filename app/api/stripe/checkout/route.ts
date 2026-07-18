@@ -24,6 +24,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Plano inválido' }, { status: 400 })
   }
 
+  // Só permite assinar/alterar a própria organização — nunca uma organização parceira
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('organization_id')
+    .eq('id', user.id)
+    .single()
+
+  if (!profile || profile.organization_id !== organization_id) {
+    return NextResponse.json({ error: 'Organização inválida' }, { status: 403 })
+  }
+
   const { data: org } = await supabase
     .from('organizations')
     .select('id, name, stripe_customer_id')
@@ -40,7 +51,13 @@ export async function POST(req: NextRequest) {
       metadata: { organization_id: org.id, user_id: user.id },
     })
     customerId = customer.id
-    await supabase.from('organizations').update({ stripe_customer_id: customerId }).eq('id', org.id)
+    const { error: updateErr } = await supabase
+      .from('organizations')
+      .update({ stripe_customer_id: customerId })
+      .eq('id', org.id)
+    if (updateErr) {
+      return NextResponse.json({ error: 'Falha ao salvar cliente Stripe: ' + updateErr.message }, { status: 500 })
+    }
   }
 
   const session = await stripe.checkout.sessions.create({

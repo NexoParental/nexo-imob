@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient as createServerClient } from '@/lib/supabase/server'
 import { createClient } from '@supabase/supabase-js'
 
 const supabaseAdmin = createClient(
@@ -8,10 +9,28 @@ const supabaseAdmin = createClient(
 )
 
 export async function POST(req: NextRequest) {
-  const { nome, email, role, organization_id } = await req.json()
+  const supabase = await createServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
 
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('organization_id, role')
+    .eq('id', user.id)
+    .single()
+
+  if (!profile || profile.role !== 'gestor') {
+    return NextResponse.json({ error: 'Apenas gestores podem convidar usuários' }, { status: 403 })
+  }
+
+  const { nome, email, role } = await req.json()
+  if (!nome || !email || !role) {
+    return NextResponse.json({ error: 'Dados incompletos' }, { status: 400 })
+  }
+
+  // organization_id sempre é o da própria organização do gestor — nunca vem do body
   const { data, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
-    data: { name: nome, role, organization_id },
+    data: { name: nome, role, organization_id: profile.organization_id },
     redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/login`,
   })
 
