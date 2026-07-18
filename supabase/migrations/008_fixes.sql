@@ -26,7 +26,8 @@ alter table notificacoes_enviadas
   ));
 
 -- 3. Política RLS para org ver suas próprias notificações enviadas
-create policy if not exists "notif_org_select" on notificacoes_enviadas
+drop policy if exists "notif_org_select" on notificacoes_enviadas;
+create policy "notif_org_select" on notificacoes_enviadas
   for select using (organization_id = my_org_id());
 
 -- 4. Criar bucket de storage para documentos (se não existir)
@@ -42,11 +43,13 @@ values (
 on conflict (id) do nothing;
 
 -- Política: usuário autenticado pode fazer upload/download de docs da sua org
+drop policy if exists "docs_insert" on storage.objects;
 create policy "docs_insert" on storage.objects
   for insert with check (
     bucket_id = 'documentos' and auth.role() = 'authenticated'
   );
 
+drop policy if exists "docs_select" on storage.objects;
 create policy "docs_select" on storage.objects
   for select using (
     bucket_id = 'documentos' and auth.role() = 'authenticated'
